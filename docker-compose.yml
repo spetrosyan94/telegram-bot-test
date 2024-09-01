@@ -1,0 +1,51 @@
+version: '3.8'
+
+networks:
+  app-network:
+
+services:
+  backend:
+    build: ./
+    restart: always
+    container_name: telegram-bot
+    ports:
+      - '3500:3500'
+    environment:
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      MYSQL_USERNAME: 'root'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_DATABASE: 'telegram-bot'
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: telegram-bot
+    ports:
+      - '3306:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - '8080:80'
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+volumes:
+  db_data:
